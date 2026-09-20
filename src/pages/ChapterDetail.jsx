@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getChapterById } from '../utils/chapterGenerator';
+import { storyService } from '../services/storyService';
 import ReceiptCard from '../components/ReceiptCard';
 import ReceiptModal from '../components/ReceiptModal';
 import { 
@@ -11,7 +11,7 @@ import {
 
 export default function ChapterDetail() {
   const { id } = useParams();
-  const chapter = getChapterById(id);
+  const chapter = storyService.getChapter(id);
   const [activeReceiptModal, setActiveReceiptModal] = useState(null);
 
   if (!chapter) {

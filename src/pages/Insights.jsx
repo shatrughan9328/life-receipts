@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { detectPatterns, getDigitalPersonality } from '../utils/patternDetector';
+import { storyService } from '../services/storyService';
 import InsightCard from '../components/InsightCard';
 import { 
   Lightbulb, 
@@ -9,8 +9,8 @@ import {
 } from 'lucide-react';
 
 export default function Insights() {
-  const patterns = detectPatterns();
-  const personality = getDigitalPersonality();
+  const patterns = storyService.getPatterns();
+  const personality = storyService.getPersonality();
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-16">

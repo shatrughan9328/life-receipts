@@ -1,29 +1,11 @@
 import React, { useState } from 'react';
-import { NavLink, Link } from 'react-router-dom';
-import { 
-  Compass, 
-  Sparkles, 
-  Layers, 
-  Network, 
-  BookOpen, 
-  Lightbulb, 
-  Stars, 
-  Menu, 
-  X,
-  Play
-} from 'lucide-react';
+import { NavLink, Link, useLocation } from 'react-router-dom';
+import { Sparkles, Menu, X, Play } from 'lucide-react';
+import { NAV_LINKS } from '../constants/routes';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const navLinks = [
-    { name: 'Overview', path: '/overview', icon: Compass },
-    { name: 'Explore', path: '/explorer', icon: Layers },
-    { name: 'Connections', path: '/connections', icon: Network },
-    { name: 'Chapters', path: '/chapters', icon: BookOpen },
-    { name: 'Insights', path: '/insights', icon: Lightbulb },
-    { name: 'Constellation', path: '/constellation', icon: Stars },
-  ];
+  const location = useLocation();
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#07090e]/85 border-b border-white/[0.08] transition-all" role="banner">
@@ -53,7 +35,7 @@ export default function Navbar() {
 
           {/* Desktop Navigation Links */}
           <nav className="hidden md:flex items-center gap-1" role="navigation" aria-label="Main Navigation">
-            {navLinks.map((link) => {
+            {NAV_LINKS.map((link) => {
               const Icon = link.icon;
               const isActive = location.pathname === link.path;
               return (
@@ -106,7 +88,7 @@ export default function Navbar() {
           role="navigation"
           aria-label="Mobile Navigation"
         >
-          {navLinks.map((link) => {
+          {NAV_LINKS.map((link) => {
             const Icon = link.icon;
             const isActive = location.pathname === link.path;
             return (

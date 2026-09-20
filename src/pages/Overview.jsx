@@ -24,8 +24,8 @@ import {
   Network
 } from 'lucide-react';
 import StatCard from '../components/StatCard';
-import { getOverviewAnalytics } from '../utils/analytics';
-import { CATEGORIES } from '../data/receipts';
+import { storyService } from '../services/storyService';
+import { getCategoryConfig } from '../constants/categories';
 
 const CustomPulseTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
@@ -52,7 +52,7 @@ const CustomHourlyTooltip = ({ active, payload, label }) => {
 };
 
 export default function Overview() {
-  const analytics = getOverviewAnalytics();
+  const analytics = storyService.getAnalytics();
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
@@ -245,7 +245,7 @@ export default function Overview() {
 
           <div className="space-y-3">
             {analytics.categoryData.map((cat) => {
-              const catConf = CATEGORIES.find(c => c.id === cat.type) || CATEGORIES[0];
+              const catConf = getCategoryConfig(cat.type);
               return (
                 <div key={cat.type} className="space-y-1">
                   <div className="flex items-center justify-between text-xs font-mono">

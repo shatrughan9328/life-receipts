@@ -1,19 +1,8 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-import { Sparkles, Eye } from 'lucide-react';
-import { ALL_RECEIPTS } from '../data/receipts';
+import { Sparkles, Eye, Link2 } from 'lucide-react';
+import { CATEGORY_COLORS, getCategoryConfig } from '../constants/categories';
+import { receiptService } from '../services/receiptService';
 import { calculateConnectionScore } from '../utils/connectionEngine';
-
-const CATEGORY_COLORS = {
-  music: '#10b981',
-  movie: '#f43f5e',
-  place: '#f59e0b',
-  purchase: '#06b6d4',
-  photo: '#3b82f6',
-  message: '#8b5cf6',
-  search: '#6366f1',
-  event: '#ec4899',
-  note: '#eab308'
-};
 
 const CONSTELLATION_CLUSTERS = [
   { id: 'all', label: 'All Galaxy (428 Stars)' },
@@ -31,9 +20,11 @@ export default function MemoryConstellation({ onSelectReceipt }) {
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
   const [selectedCluster, setSelectedCluster] = useState('all');
 
-  // Pre-generate deterministic 2D celestial coordinates for all 428 receipts
+  const allReceipts = useMemo(() => receiptService.getAll(), []);
+
+  // Pre-generate deterministic 2D celestial coordinates for all receipts
   const starfield = useMemo(() => {
-    return ALL_RECEIPTS.map((r, index) => {
+    return allReceipts.map((r, index) => {
       // Deterministic angle and radius from receipt id/date
       const month = parseInt(r.date.split('-')[1], 10);
       const day = parseInt(r.date.split('-')[2] || '1', 10);
@@ -53,22 +44,33 @@ export default function MemoryConstellation({ onSelectReceipt }) {
         twinklePhase: (index * 0.4) % (Math.PI * 2)
       };
     });
-  }, []);
+  }, [allReceipts]);
 
   // Derive connected moments directly with useMemo
-  const connectedIds = useMemo(() => {
-    if (!activeReceipt) return new Set();
+  const { connectedIds, activeConnectionReasons } = useMemo(() => {
+    if (!activeReceipt) return { connectedIds: new Set(), activeConnectionReasons: [] };
     const set = new Set();
-    ALL_RECEIPTS.forEach(other => {
+    const reasonsMap = new Map();
+
+    allReceipts.forEach(other => {
       if (other.id !== activeReceipt.id) {
         const score = calculateConnectionScore(activeReceipt, other);
         if (score.score >= 35) {
           set.add(other.id);
+          score.reasons.forEach(r => {
+            reasonsMap.set(r.label, (reasonsMap.get(r.label) || 0) + 1);
+          });
         }
       }
     });
-    return set;
-  }, [activeReceipt]);
+
+    const topReasons = Array.from(reasonsMap.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(entry => entry[0]);
+
+    return { connectedIds: set, activeConnectionReasons: topReasons };
+  }, [activeReceipt, allReceipts]);
 
   // Main Canvas Render Loop
   useEffect(() => {
@@ -217,15 +219,17 @@ export default function MemoryConstellation({ onSelectReceipt }) {
             <span>Memory Constellation</span>
           </h3>
           <p className="text-xs text-slate-400 mt-0.5">
-            428 moments orbiting across 12 months. Twinkling stars connected by relational gravity.
+            {allReceipts.length} moments orbiting across 12 months. Twinkling stars connected by relational gravity.
           </p>
         </div>
 
         {/* Constellation Cluster Selectors */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full scrollbar-none">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full scrollbar-none" role="tablist" aria-label="Constellation clusters">
           {CONSTELLATION_CLUSTERS.map(cluster => (
             <button
               key={cluster.id}
+              role="tab"
+              aria-selected={selectedCluster === cluster.id}
               onClick={() => setSelectedCluster(cluster.id)}
               className={`px-3 py-1.5 rounded-xl text-xs font-mono whitespace-nowrap transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
                 selectedCluster === cluster.id
@@ -280,7 +284,7 @@ export default function MemoryConstellation({ onSelectReceipt }) {
 
       {/* Active Star Drawer / Bottom Banner */}
       {activeReceipt && (
-        <div className="p-4 sm:p-5 border-t border-white/[0.08] bg-[#0c0f1d]/95 backdrop-blur-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 z-10 animate-in slide-in-from-bottom-2">
+        <div className="p-4 sm:p-5 border-t border-white/[0.08] bg-[#0c0f1d]/95 backdrop-blur-lg flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 z-10 animate-in slide-in-from-bottom-2">
           <div className="flex items-center gap-3">
             <div 
               className="w-10 h-10 rounded-2xl flex items-center justify-center border shrink-0"
@@ -293,21 +297,34 @@ export default function MemoryConstellation({ onSelectReceipt }) {
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h4 className="text-sm font-bold text-white">
                   {activeReceipt.title}
                 </h4>
                 <span className="text-xs font-mono text-slate-400">
                   {activeReceipt.date} at {activeReceipt.timestamp}
                 </span>
+                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-white/[0.06] text-slate-300">
+                  {getCategoryConfig(activeReceipt.type).label}
+                </span>
               </div>
-              <p className="text-xs text-slate-400">
-                Connected to <span className="text-indigo-400 font-bold">{connectedIds.size} stars</span> across your digital sky.
-              </p>
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                <p className="text-xs text-slate-400">
+                  Connected to <span className="text-indigo-400 font-bold">{connectedIds.size} stars</span>.
+                </p>
+                {activeConnectionReasons.length > 0 && (
+                  <div className="flex items-center gap-1">
+                    <Link2 className="w-3 h-3 text-indigo-400" />
+                    <span className="text-[11px] text-indigo-300 font-mono">
+                      {activeConnectionReasons.join(' • ')}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => onSelectReceipt && onSelectReceipt(activeReceipt)}
               className="px-3.5 py-1.5 rounded-xl text-xs font-mono bg-indigo-600 hover:bg-indigo-500 text-white transition-colors flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
@@ -317,7 +334,7 @@ export default function MemoryConstellation({ onSelectReceipt }) {
             </button>
             <button
               onClick={() => setActiveReceipt(null)}
-              className="px-3.5 py-1.5 rounded-xl text-xs font-mono bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 transition-colors"
+              className="px-3.5 py-1.5 rounded-xl text-xs font-mono bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
             >
               Clear
             </button>

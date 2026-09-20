@@ -1,30 +1,11 @@
-import React from 'react';
 import { 
   Search, 
   X, 
   ArrowUpDown, 
   Calendar, 
-  Music, 
-  Film, 
-  MapPin, 
-  CreditCard, 
-  Camera, 
-  MessageCircle, 
   FileText
 } from 'lucide-react';
-import { CATEGORIES } from '../data/receipts';
-
-const ICON_MAP = {
-  music: Music,
-  movie: Film,
-  place: MapPin,
-  purchase: CreditCard,
-  photo: Camera,
-  message: MessageCircle,
-  search: Search,
-  event: Calendar,
-  note: FileText,
-};
+import { CATEGORY_DEFINITIONS, ICON_MAP } from '../constants/categories';
 
 export default function FilterBar({
   searchQuery,
@@ -130,7 +111,7 @@ export default function FilterBar({
         </button>
 
         {/* 9 Category Pills */}
-        {CATEGORIES.map(cat => {
+        {CATEGORY_DEFINITIONS.map(cat => {
           const IconComponent = ICON_MAP[cat.id] || FileText;
           const isSelected = selectedCategory === cat.id;
           const count = categoryCounts[cat.id] || 0;

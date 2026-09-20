@@ -4,44 +4,25 @@ import {
   Clock, 
   MapPin, 
   Link2, 
-  Play, 
-  Pause, 
-  Music, 
-  Film, 
-  CreditCard, 
   Camera, 
-  MessageCircle, 
   Search, 
-  Calendar, 
   FileText,
   ExternalLink,
   Barcode
 } from 'lucide-react';
-import { CATEGORIES } from '../data/receipts';
+import { getCategoryConfig, ICON_MAP } from '../constants/categories';
 import { getConnectionsForReceipt } from '../utils/connectionEngine';
-import { ALL_RECEIPTS } from '../data/receipts';
+import { receiptService } from '../services/receiptService';
 import { Link } from 'react-router-dom';
 import ConnectionChain from './ConnectionChain';
-
-const ICON_MAP = {
-  music: Music,
-  movie: Film,
-  place: MapPin,
-  purchase: CreditCard,
-  photo: Camera,
-  message: MessageCircle,
-  search: Search,
-  event: Calendar,
-  note: FileText,
-};
+import WaveformPlayer from './WaveformPlayer';
 
 export default function ReceiptModal({ receipt, onClose, onSelectReceipt }) {
-  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [showChain, setShowChain] = useState(false);
 
   const connectedMoments = useMemo(() => {
     if (!receipt) return [];
-    return getConnectionsForReceipt(receipt, ALL_RECEIPTS, 35).slice(0, 5);
+    return getConnectionsForReceipt(receipt, receiptService.getAll(), 35).slice(0, 5);
   }, [receipt]);
 
   const relatedChainReceipts = useMemo(() => {
@@ -59,7 +40,7 @@ export default function ReceiptModal({ receipt, onClose, onSelectReceipt }) {
 
   if (!receipt) return null;
 
-  const categoryConfig = CATEGORIES.find(c => c.id === receipt.type) || CATEGORIES[0];
+  const categoryConfig = getCategoryConfig(receipt.type);
   const IconComponent = ICON_MAP[receipt.type] || FileText;
 
   return (
@@ -125,45 +106,7 @@ export default function ReceiptModal({ receipt, onClose, onSelectReceipt }) {
         
         {/* 1. MUSIC PREVIEW */}
         {receipt.type === 'music' && (
-          <div className="mb-6 p-4 rounded-2xl bg-emerald-950/20 border border-emerald-500/20">
-            <div className="flex items-center justify-between gap-4 mb-3">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setIsPlayingAudio(!isPlayingAudio)}
-                  aria-label={isPlayingAudio ? 'Pause simulated track' : 'Play simulated track'}
-                  className="w-12 h-12 rounded-full bg-emerald-500 text-black flex items-center justify-center hover:scale-105 transition-transform shadow-lg shadow-emerald-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
-                >
-                  {isPlayingAudio ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
-                </button>
-                <div>
-                  <p className="text-sm font-semibold text-white">{receipt.metadata?.artist || 'Unknown Artist'}</p>
-                  <p className="text-xs text-slate-400">{receipt.metadata?.genre || 'Alternative / Ambient'} • {receipt.metadata?.duration || '3:45'}</p>
-                </div>
-              </div>
-              <span className="px-2.5 py-1 text-[11px] font-mono rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                Spotify High-Res
-              </span>
-            </div>
-
-            {/* Simulated Animated Waveform */}
-            <div className="h-8 flex items-end gap-1 px-2" aria-hidden="true">
-              {[40, 65, 80, 45, 90, 70, 30, 85, 95, 60, 40, 75, 50, 90, 65, 45, 80, 100, 60, 40, 70, 85, 50].map((height, i) => (
-                <div 
-                  key={i} 
-                  className={`flex-1 rounded-full transition-all duration-300 ${
-                    isPlayingAudio ? 'bg-emerald-400 animate-pulse' : 'bg-emerald-500/30'
-                  }`}
-                  style={{ height: isPlayingAudio ? `${height}%` : '25%' }}
-                />
-              ))}
-            </div>
-
-            {receipt.metadata?.lyricsExcerpt && (
-              <p className="mt-3 text-xs italic text-slate-400 border-l-2 border-emerald-500/40 pl-3">
-                "{receipt.metadata.lyricsExcerpt}"
-              </p>
-            )}
-          </div>
+          <WaveformPlayer metadata={receipt.metadata} />
         )}
 
         {/* 2. PLACE PREVIEW */}

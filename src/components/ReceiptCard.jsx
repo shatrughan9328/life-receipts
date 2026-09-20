@@ -1,33 +1,14 @@
 import React from 'react';
 import { 
-  Music, 
-  Film, 
   MapPin, 
-  CreditCard, 
-  Camera, 
-  MessageCircle, 
-  Search, 
-  Calendar, 
-  FileText,
-  Link2,
-  Clock
+  Link2, 
+  Clock,
+  FileText
 } from 'lucide-react';
-import { CATEGORIES } from '../data/receipts';
-
-const ICON_MAP = {
-  music: Music,
-  movie: Film,
-  place: MapPin,
-  purchase: CreditCard,
-  photo: Camera,
-  message: MessageCircle,
-  search: Search,
-  event: Calendar,
-  note: FileText,
-};
+import { getCategoryConfig, ICON_MAP } from '../constants/categories';
 
 export default function ReceiptCard({ receipt, onClick, connectionCount = 0, isHighlighted = false }) {
-  const categoryConfig = CATEGORIES.find(c => c.id === receipt.type) || CATEGORIES[0];
+  const categoryConfig = getCategoryConfig(receipt.type);
   const IconComponent = ICON_MAP[receipt.type] || FileText;
 
   const handleKeyDown = (e) => {

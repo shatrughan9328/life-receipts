@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { ALL_RECEIPTS, getDemoClusterReceipts } from '../data/receipts';
+import { receiptService } from '../services/receiptService';
+import { storyService } from '../services/storyService';
 import ConnectionGraph from '../components/ConnectionGraph';
 import StoryReveal from '../components/StoryReveal';
 import { Sparkles, Network, Flame } from 'lucide-react';
-import { getLifeChapters } from '../utils/chapterGenerator';
 
 export default function Connections() {
   const [searchParams] = useSearchParams();
   const focusParam = searchParams.get('focus');
 
-  const chapters = getLifeChapters();
+  const chapters = storyService.getChapters();
   const [selectedClusterId, setSelectedClusterId] = useState('the-reset');
   const [threshold, setThreshold] = useState(35);
   const [storyReceipts, setStoryReceipts] = useState(null);
@@ -21,7 +21,7 @@ export default function Connections() {
 
   // Selected receipt within the cluster (defaults to first moment, e.g. Night Changes for The Reset)
   const initialReceipt = focusParam 
-    ? ALL_RECEIPTS.find(r => r.id === focusParam) || clusterReceipts[0]
+    ? receiptService.getById(focusParam) || clusterReceipts[0]
     : clusterReceipts[0];
 
   const [selectedReceipt, setSelectedReceipt] = useState(initialReceipt);
@@ -30,7 +30,7 @@ export default function Connections() {
   if (prevFocus !== focusParam) {
     setPrevFocus(focusParam);
     if (focusParam) {
-      const found = ALL_RECEIPTS.find(r => r.id === focusParam);
+      const found = receiptService.getById(focusParam);
       if (found) {
         setSelectedReceipt(found);
         const parentChapter = chapters.find(c => c.receipts.some(r => r.id === found.id));
@@ -70,7 +70,7 @@ export default function Connections() {
         {/* Demo Story Quick Trigger */}
         <button
           onClick={() => {
-            const resetCluster = getDemoClusterReceipts();
+            const resetCluster = receiptService.getDemoCluster();
             setStoryReceipts(resetCluster);
           }}
           className="self-start md:self-auto px-4 py-2.5 rounded-xl text-xs font-mono font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30 transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/10 cursor-pointer"

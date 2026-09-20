@@ -14,97 +14,234 @@ import {
   CreditCard, 
   Camera, 
   FileText,
+  Calendar,
   X
 } from 'lucide-react';
 
-const JOURNEY_STEPS = [
+const STORY_ARCS = [
   {
-    step: 1,
-    time: '1:48 AM • March 18',
-    category: 'Music',
-    icon: Music,
-    color: '#10b981',
-    heading: 'It started in the dark.',
-    subheading: 'You played "Night Changes" by One Direction.',
-    detail: 'Alone in your room, letting acoustic melodies wash over weeks of accumulated fatigue.',
-    bg: 'from-emerald-950/40 to-slate-950'
+    id: 'reset',
+    title: 'The Reset',
+    tagline: 'From late-night fatigue to intentional stillness',
+    steps: [
+      {
+        step: 1,
+        time: '1:48 AM • March 18',
+        category: 'Music',
+        icon: Music,
+        color: '#10b981',
+        heading: 'It started in the dark.',
+        subheading: 'You played "Night Changes" by One Direction.',
+        detail: 'Alone in your room, letting acoustic melodies wash over weeks of accumulated fatigue.',
+        bg: 'from-emerald-950/40 to-slate-950'
+      },
+      {
+        step: 2,
+        time: '2:12 AM • March 18',
+        category: 'Search',
+        icon: Search,
+        color: '#6366f1',
+        heading: 'A quiet question took shape.',
+        subheading: 'You searched: "quiet places near me with good coffee".',
+        detail: 'You weren\'t looking for caffeine. You were seeking a sanctuary away from the screen.',
+        bg: 'from-indigo-950/40 to-slate-950'
+      },
+      {
+        step: 3,
+        time: '2:45 PM • March 18',
+        category: 'Place',
+        icon: MapPin,
+        color: '#f59e0b',
+        heading: 'You followed the prompt.',
+        subheading: 'You arrived at Blue Tokai Coffee Roasters.',
+        detail: 'Sunlight filtering through timber blinds. Low jazz. The scent of roasted beans.',
+        bg: 'from-amber-950/40 to-slate-950'
+      },
+      {
+        step: 4,
+        time: '3:18 PM • March 18',
+        category: 'Purchase',
+        icon: CreditCard,
+        color: '#06b6d4',
+        heading: 'A small, deliberate treat.',
+        subheading: 'Purchased an Iced Sea Salt Mocha & warm croissant.',
+        detail: 'A tangible receipt marking an hour stolen back from urgency.',
+        bg: 'from-cyan-950/40 to-slate-950'
+      },
+      {
+        step: 5,
+        time: '3:25 PM • March 18',
+        category: 'Photo',
+        icon: Camera,
+        color: '#3b82f6',
+        heading: 'You preserved the stillness.',
+        subheading: 'Captured a photo of diagonal sunlight on your wooden table.',
+        detail: 'Documenting a rare moment where time felt expansive instead of compressed.',
+        bg: 'from-blue-950/40 to-slate-950'
+      },
+      {
+        step: 6,
+        time: '3:42 PM • March 18',
+        category: 'Note',
+        icon: FileText,
+        color: '#eab308',
+        heading: 'The realization landed.',
+        subheading: 'You penned down five words: "Needed this break."',
+        detail: 'The final line connecting a late-night thought into an intentional afternoon.',
+        bg: 'from-yellow-950/40 to-slate-950'
+      },
+      {
+        step: 7,
+        time: 'The Reveal',
+        category: 'Story',
+        icon: Sparkles,
+        color: '#c084fc',
+        heading: 'The Reset.',
+        subheading: 'You weren\'t looking at six receipts. You were looking at one story.',
+        detail: 'Separately, they were receipts. Together, they captured a moment when you decided to slow down.',
+        isClimax: true,
+        bg: 'from-purple-950/50 via-indigo-950/50 to-slate-950'
+      }
+    ]
   },
   {
-    step: 2,
-    time: '2:12 AM • March 18',
-    category: 'Search',
-    icon: Search,
-    color: '#6366f1',
-    heading: 'A quiet question took shape.',
-    subheading: 'You searched: "quiet places near me with good coffee".',
-    detail: 'You weren\'t looking for caffeine. You were seeking a sanctuary away from the screen.',
-    bg: 'from-indigo-950/40 to-slate-950'
+    id: 'creative-sprint',
+    title: 'The Deep Focus Sprint',
+    tagline: 'When inspiration strikes past midnight',
+    steps: [
+      {
+        step: 1,
+        time: '11:15 PM • February 22',
+        category: 'Music',
+        icon: Music,
+        color: '#10b981',
+        heading: 'Flow state triggered.',
+        subheading: 'You put on Brian Eno\'s "Music for Airports" on infinite loop.',
+        detail: 'A sonic cocoon shielding your attention from notifications and outside distractions.',
+        bg: 'from-emerald-950/40 to-slate-950'
+      },
+      {
+        step: 2,
+        time: '11:40 PM • February 22',
+        category: 'Search',
+        icon: Search,
+        color: '#6366f1',
+        heading: 'A deep architectural puzzle.',
+        subheading: 'You searched: "force directed graph simulation react d3 velocity damping".',
+        detail: 'Digging through academic algorithm documentation looking for the cleanest solution.',
+        bg: 'from-indigo-950/40 to-slate-950'
+      },
+      {
+        step: 3,
+        time: '1:10 AM • February 23',
+        category: 'Purchase',
+        icon: CreditCard,
+        color: '#06b6d4',
+        heading: 'Late-night sustenance.',
+        subheading: 'Ordered high-caffeine cold brew delivery.',
+        detail: 'Powering through the hardest computational hurdle without losing momentum.',
+        bg: 'from-cyan-950/40 to-slate-950'
+      },
+      {
+        step: 4,
+        time: '2:30 AM • February 23',
+        category: 'Note',
+        icon: FileText,
+        color: '#eab308',
+        heading: 'The breakthrough arrives.',
+        subheading: 'Jotted note: "Eulerian layout converged in 12ms. Ship it."',
+        detail: 'The exact second the pieces clicked together after hours of trial.',
+        bg: 'from-yellow-950/40 to-slate-950'
+      },
+      {
+        step: 5,
+        time: 'The Reveal',
+        category: 'Story',
+        icon: Sparkles,
+        color: '#c084fc',
+        heading: 'The Deep Focus Sprint.',
+        subheading: 'Four digital events: one midnight breakthrough.',
+        detail: 'Your receipts prove that breakthroughs aren\'t accidents—they are sustained sequences of focus.',
+        isClimax: true,
+        bg: 'from-purple-950/50 via-indigo-950/50 to-slate-950'
+      }
+    ]
   },
   {
-    step: 3,
-    time: '2:45 PM • March 18',
-    category: 'Place',
-    icon: MapPin,
-    color: '#f59e0b',
-    heading: 'You followed the prompt.',
-    subheading: 'You arrived at Blue Tokai Coffee Roasters.',
-    detail: 'Sunlight filtering through timber blinds. Low jazz. The scent of roasted beans.',
-    bg: 'from-amber-950/40 to-slate-950'
-  },
-  {
-    step: 4,
-    time: '3:18 PM • March 18',
-    category: 'Purchase',
-    icon: CreditCard,
-    color: '#06b6d4',
-    heading: 'A small, deliberate treat.',
-    subheading: 'Purchased an Iced Sea Salt Mocha & warm croissant.',
-    detail: 'A tangible receipt marking an hour stolen back from urgency.',
-    bg: 'from-cyan-950/40 to-slate-950'
-  },
-  {
-    step: 5,
-    time: '3:25 PM • March 18',
-    category: 'Photo',
-    icon: Camera,
-    color: '#3b82f6',
-    heading: 'You preserved the stillness.',
-    subheading: 'Captured a photo of diagonal sunlight on your wooden table.',
-    detail: 'Documenting a rare moment where time felt expansive instead of compressed.',
-    bg: 'from-blue-950/40 to-slate-950'
-  },
-  {
-    step: 6,
-    time: '3:42 PM • March 18',
-    category: 'Note',
-    icon: FileText,
-    color: '#eab308',
-    heading: 'The realization landed.',
-    subheading: 'You penned down five words: "Needed this break."',
-    detail: 'The final line connecting a late-night thought into an intentional afternoon.',
-    bg: 'from-yellow-950/40 to-slate-950'
-  },
-  {
-    step: 7,
-    time: 'The Reveal',
-    category: 'Story',
-    icon: Sparkles,
-    color: '#c084fc',
-    heading: 'The Reset.',
-    subheading: 'You weren\'t looking at six receipts. You were looking at one story.',
-    detail: 'Separately, they were receipts. Together, they captured a moment when you decided to slow down.',
-    isClimax: true,
-    bg: 'from-purple-950/50 via-indigo-950/50 to-slate-950'
+    id: 'weekend-escape',
+    title: 'The Weekend Escape',
+    tagline: 'Reconnecting with people in real space',
+    steps: [
+      {
+        step: 1,
+        time: 'Friday 6:20 PM • April 12',
+        category: 'Search',
+        icon: Search,
+        color: '#6366f1',
+        heading: 'The escape hatch.',
+        subheading: 'Searched: "scenic sunset viewpoints ridge trail".',
+        detail: 'Closing the work laptop and deliberately choosing nature over another night on Netflix.',
+        bg: 'from-indigo-950/40 to-slate-950'
+      },
+      {
+        step: 2,
+        time: 'Saturday 5:30 PM • April 13',
+        category: 'Place',
+        icon: MapPin,
+        color: '#f59e0b',
+        heading: 'Reaching the summit.',
+        subheading: 'Checked in at Sunset Ridge Overlook.',
+        detail: 'The city skyline framed in warm amber gold below you.',
+        bg: 'from-amber-950/40 to-slate-950'
+      },
+      {
+        step: 3,
+        time: 'Saturday 6:15 PM • April 13',
+        category: 'Photo',
+        icon: Camera,
+        color: '#3b82f6',
+        heading: 'Unfiltered horizon.',
+        subheading: 'Snapped golden-hour panoramic shot with friends.',
+        detail: 'Preserving a memory of genuine laughter and crisp mountain breeze.',
+        bg: 'from-blue-950/40 to-slate-950'
+      },
+      {
+        step: 4,
+        time: 'Saturday 8:00 PM • April 13',
+        category: 'Event',
+        icon: Calendar,
+        color: '#ec4899',
+        heading: 'Shared feast.',
+        subheading: 'Dined at Mountain Pine Bistro.',
+        detail: 'Hours spent talking about everything other than work deadlines.',
+        bg: 'from-pink-950/40 to-slate-950'
+      },
+      {
+        step: 5,
+        time: 'The Reveal',
+        category: 'Story',
+        icon: Sparkles,
+        color: '#c084fc',
+        heading: 'The Weekend Escape.',
+        subheading: 'Turning digital logs into living memories.',
+        detail: 'A reminder that the best receipts are the ones that pulled you away from the keyboard.',
+        isClimax: true,
+        bg: 'from-purple-950/50 via-indigo-950/50 to-slate-950'
+      }
+    ]
   }
 ];
 
 export default function Journey() {
+  const [activeArcId, setActiveArcId] = useState('reset');
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
-  const step = JOURNEY_STEPS[currentStepIndex];
+  const currentArc = STORY_ARCS.find(a => a.id === activeArcId) || STORY_ARCS[0];
+  const journeySteps = currentArc.steps;
+  const step = journeySteps[currentStepIndex] || journeySteps[0];
   const IconComponent = step.icon;
-  const isFinal = currentStepIndex === JOURNEY_STEPS.length - 1;
+  const isFinal = currentStepIndex === journeySteps.length - 1;
 
   // Trigger confetti on final reveal
   useEffect(() => {
@@ -122,17 +259,17 @@ export default function Journey() {
     if (!isAutoPlaying || isFinal) return;
 
     const timer = setTimeout(() => {
-      setCurrentStepIndex(prev => Math.min(JOURNEY_STEPS.length - 1, prev + 1));
+      setCurrentStepIndex(prev => Math.min(journeySteps.length - 1, prev + 1));
     }, 4500);
 
     return () => clearTimeout(timer);
-  }, [currentStepIndex, isAutoPlaying, isFinal]);
+  }, [currentStepIndex, isAutoPlaying, isFinal, journeySteps.length]);
 
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'ArrowRight') {
-        setCurrentStepIndex(prev => Math.min(JOURNEY_STEPS.length - 1, prev + 1));
+        setCurrentStepIndex(prev => Math.min(journeySteps.length - 1, prev + 1));
       } else if (e.key === 'ArrowLeft') {
         setCurrentStepIndex(prev => Math.max(0, prev - 1));
       } else if (e.key === ' ') {
@@ -141,7 +278,13 @@ export default function Journey() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [journeySteps.length]);
+
+  const handleSelectArc = (arcId) => {
+    setActiveArcId(arcId);
+    setCurrentStepIndex(0);
+    setIsAutoPlaying(true);
+  };
 
   return (
     <div className="relative min-h-[calc(100vh-4rem)] flex flex-col justify-between p-4 sm:p-8 select-none">
@@ -151,11 +294,30 @@ export default function Journey() {
         className={`absolute inset-0 bg-gradient-to-b ${step.bg} transition-colors duration-1000 -z-10`}
       />
 
-      {/* Top Header: Progress Ticks & Close */}
+      {/* Top Header: Story Selector & Progress Ticks */}
       <div className="max-w-3xl mx-auto w-full">
+        {/* Arc Selector Pills */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mb-4" role="tablist" aria-label="Story Arc selection">
+          {STORY_ARCS.map(arc => (
+            <button
+              key={arc.id}
+              role="tab"
+              aria-selected={activeArcId === arc.id}
+              onClick={() => handleSelectArc(arc.id)}
+              className={`px-3 py-1.5 rounded-full text-xs font-mono transition-all ${
+                activeArcId === arc.id
+                  ? 'bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/30 ring-1 ring-white/20'
+                  : 'bg-white/[0.05] text-slate-400 hover:text-white border border-white/[0.08]'
+              }`}
+            >
+              {arc.title}
+            </button>
+          ))}
+        </div>
+
         {/* Story Ticks Bar */}
         <div className="flex items-center gap-1.5 mb-6">
-          {JOURNEY_STEPS.map((s, idx) => (
+          {journeySteps.map((s, idx) => (
             <div 
               key={idx}
               onClick={() => setCurrentStepIndex(idx)}
@@ -181,12 +343,12 @@ export default function Journey() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-              className="flex items-center gap-1 text-slate-400 hover:text-white transition-colors"
+              className="flex items-center gap-1 text-slate-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-400 rounded px-1"
             >
               {isAutoPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
               <span>{isAutoPlaying ? 'Pause' : 'Play'}</span>
             </button>
-            <Link to="/overview" className="p-1 text-slate-400 hover:text-white">
+            <Link to="/overview" className="p-1 text-slate-400 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-400 rounded">
               <X className="w-4 h-4" />
             </Link>
           </div>
@@ -194,7 +356,7 @@ export default function Journey() {
       </div>
 
       {/* Main Moment Visual Center */}
-      <div className="max-w-2xl mx-auto w-full text-center py-12 px-4 animate-in fade-in zoom-in-95 duration-500 key={currentStepIndex}">
+      <div className="max-w-2xl mx-auto w-full text-center py-8 sm:py-12 px-4 animate-in fade-in zoom-in-95 duration-500 key={currentStepIndex}">
         {/* Animated Icon Halo */}
         <div 
           className="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-3xl flex items-center justify-center mb-8 border shadow-2xl transition-all duration-500"
@@ -209,7 +371,7 @@ export default function Journey() {
         </div>
 
         <span className="text-xs font-mono uppercase tracking-widest text-slate-400 block mb-3">
-          {step.category} • Moment {step.step} of 7
+          {step.category} • Moment {step.step} of {journeySteps.length}
         </span>
 
         <h2 className="text-3xl sm:text-5xl font-extrabold font-display text-white tracking-tight mb-4 leading-tight">
@@ -229,13 +391,13 @@ export default function Journey() {
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               to="/connections?focus=rcpt-reset-01"
-              className="px-6 py-3 rounded-2xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 shadow-xl transition-all"
+              className="px-6 py-3 rounded-2xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 shadow-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
             >
               Explore In Connection Graph
             </Link>
             <button
               onClick={() => setCurrentStepIndex(0)}
-              className="px-5 py-3 rounded-2xl text-xs font-mono text-slate-300 hover:text-white bg-white/[0.05] border border-white/[0.1] transition-all flex items-center gap-1.5"
+              className="px-5 py-3 rounded-2xl text-xs font-mono text-slate-300 hover:text-white bg-white/[0.05] border border-white/[0.1] transition-all flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Replay Journey</span>
@@ -260,11 +422,11 @@ export default function Journey() {
         </button>
 
         <span className="text-xs font-mono text-slate-500">
-          Use ← / → Arrow Keys
+          Use ← / → Arrow Keys or Space to Pause
         </span>
 
         <button
-          onClick={() => setCurrentStepIndex(prev => Math.min(JOURNEY_STEPS.length - 1, prev + 1))}
+          onClick={() => setCurrentStepIndex(prev => Math.min(journeySteps.length - 1, prev + 1))}
           disabled={isFinal}
           className={`flex items-center gap-1 text-xs font-mono px-4 py-2 rounded-xl transition-all ${
             isFinal
