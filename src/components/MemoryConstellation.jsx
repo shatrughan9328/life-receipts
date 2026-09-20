@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-import { Sparkles } from 'lucide-react';
-import { ALL_RECEIPTS, CATEGORIES } from '../data/receipts';
+import { Sparkles, Eye } from 'lucide-react';
+import { ALL_RECEIPTS } from '../data/receipts';
 import { calculateConnectionScore } from '../utils/connectionEngine';
 
 const CATEGORY_COLORS = {
@@ -15,45 +15,42 @@ const CATEGORY_COLORS = {
   note: '#eab308'
 };
 
-function pseudoRandom(s) {
-  const next = (s * 9301 + 49297) % 233280;
-  return [next, next / 233280];
-}
+const CONSTELLATION_CLUSTERS = [
+  { id: 'all', label: 'All Galaxy (428 Stars)' },
+  { id: 'cluster-reset', label: '✦ The Reset Constellation' },
+  { id: 'cluster-late-night', label: '🌙 Nocturnal Orbit' },
+  { id: 'cluster-grind', label: '🎓 The Focus Grid' },
+  { id: 'cluster-escape', label: '✈️ Mountain Ridge' },
+  { id: 'cluster-comfort', label: '🎬 Comfort Spiral' }
+];
 
 export default function MemoryConstellation({ onSelectReceipt }) {
   const canvasRef = useRef(null);
   const [activeReceipt, setActiveReceipt] = useState(null);
   const [hoveredReceipt, setHoveredReceipt] = useState(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
-  const [filterType, setFilterType] = useState('all');
+  const [selectedCluster, setSelectedCluster] = useState('all');
 
-  // Generate 2D celestial coordinates for all 428 receipts
+  // Pre-generate deterministic 2D celestial coordinates for all 428 receipts
   const starfield = useMemo(() => {
-    let currentSeed = 1337;
-
-    return ALL_RECEIPTS.map((r) => {
-      let randVal1, randVal2, randVal3;
-      [currentSeed, randVal1] = pseudoRandom(currentSeed);
-      [currentSeed, randVal2] = pseudoRandom(currentSeed);
-      [currentSeed, randVal3] = pseudoRandom(currentSeed);
-
-      // Cluster by month and theme in spiral galaxy arms
+    return ALL_RECEIPTS.map((r, index) => {
+      // Deterministic angle and radius from receipt id/date
       const month = parseInt(r.date.split('-')[1], 10);
-      const angle = (month / 12) * Math.PI * 2 + (randVal1 - 0.5) * 0.8;
-      const distance = 80 + Math.pow(randVal2, 0.7) * 320;
+      const day = parseInt(r.date.split('-')[2] || '1', 10);
+      const angle = (month / 12) * Math.PI * 2 + ((day * 7) % 360) * (Math.PI / 180);
+      const distance = 70 + ((index * 37) % 240);
 
-      // Celestial coordinates relative to galaxy center (0, 0)
-      const x = Math.cos(angle) * distance + (randVal3 - 0.5) * 40;
-      const y = Math.sin(angle) * distance * 0.7 + (randVal1 - 0.5) * 40;
+      // Celestial coordinates relative to galaxy center
+      const x = Math.cos(angle) * distance + (((index * 13) % 40) - 20);
+      const y = Math.sin(angle) * distance * 0.75 + (((index * 19) % 40) - 20);
 
       return {
         ...r,
         origX: x,
         origY: y,
         size: r.clusterId ? 4.5 : 3.0,
-        twinkleSpeed: 0.02 + randVal2 * 0.04,
-        twinklePhase: randVal3 * Math.PI * 2,
-        color: CATEGORY_COLORS[r.type] || '#818cf8'
+        color: CATEGORY_COLORS[r.type] || '#818cf8',
+        twinklePhase: (index * 0.4) % (Math.PI * 2)
       };
     });
   }, []);
@@ -79,7 +76,6 @@ export default function MemoryConstellation({ onSelectReceipt }) {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     let animationFrameId;
-
     let time = 0;
 
     const render = () => {
@@ -118,7 +114,8 @@ export default function MemoryConstellation({ onSelectReceipt }) {
 
       // 2. Draw Stars
       starfield.forEach(star => {
-        const matchesFilter = filterType === 'all' || star.type === filterType;
+        const isVisible = selectedCluster === 'all' || star.clusterId === selectedCluster;
+
         const isActive = activeReceipt && star.id === activeReceipt.id;
         const isConnected = connectedIds.has(star.id);
         const isHovered = hoveredReceipt && star.id === hoveredReceipt.id;
@@ -127,9 +124,9 @@ export default function MemoryConstellation({ onSelectReceipt }) {
         const y = cy + star.origY;
 
         // Twinkle factor
-        const twinkle = 0.7 + 0.3 * Math.sin(time * star.twinkleSpeed * 50 + star.twinklePhase);
-        let alpha = matchesFilter ? (isActive || isConnected || isHovered ? 1 : 0.4) : 0.1;
-        if (!activeReceipt && matchesFilter) alpha = twinkle;
+        const twinkle = 0.6 + 0.4 * Math.sin(time * 2 + star.twinklePhase);
+        let alpha = isVisible ? (isActive || isConnected || isHovered ? 1 : 0.45) : 0.08;
+        if (!activeReceipt && isVisible) alpha = twinkle;
 
         // Glowing outer halo for active / connected stars
         if (isActive || isConnected || isHovered) {
@@ -156,30 +153,33 @@ export default function MemoryConstellation({ onSelectReceipt }) {
     return () => {
       cancelAnimationFrame(animationFrameId);
     };
-  }, [starfield, activeReceipt, connectedIds, hoveredReceipt, filterType]);
+  }, [starfield, activeReceipt, connectedIds, hoveredReceipt, selectedCluster]);
 
-  // Handle Mouse Interaction
-  const handleMouseMove = (e) => {
+  // Find star at canvas client coordinates
+  const findStarAt = (clientX, clientY) => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) return null;
     const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const mx = (clientX - rect.left) * scaleX;
+    const my = (clientY - rect.top) * scaleY;
     const cx = canvas.width / 2;
     const cy = canvas.height / 2;
 
-    // Find closest star within 12px
-    let found = null;
     for (const star of starfield) {
       const sx = cx + star.origX;
       const sy = cy + star.origY;
       const dist = Math.hypot(mx - sx, my - sy);
-      if (dist < 12) {
-        found = star;
-        break;
+      if (dist < 16) {
+        return star;
       }
     }
+    return null;
+  };
 
+  const handleMouseMove = (e) => {
+    const found = findStarAt(e.clientX, e.clientY);
     if (found) {
       setHoveredReceipt(found);
       setTooltipPos({ x: e.clientX, y: e.clientY });
@@ -188,68 +188,69 @@ export default function MemoryConstellation({ onSelectReceipt }) {
     }
   };
 
-  const handleClick = (e) => {
-    if (hoveredReceipt) {
-      setActiveReceipt(hoveredReceipt);
-      if (onSelectReceipt) onSelectReceipt(hoveredReceipt);
+  const handleCanvasClick = (e) => {
+    const found = findStarAt(e.clientX, e.clientY);
+    if (found) {
+      setActiveReceipt(found);
+    }
+  };
+
+  const handleTouchStart = (e) => {
+    if (e.touches.length > 0) {
+      const touch = e.touches[0];
+      const found = findStarAt(touch.clientX, touch.clientY);
+      if (found) {
+        setActiveReceipt(found);
+        setHoveredReceipt(found);
+        setTooltipPos({ x: touch.clientX, y: touch.clientY });
+      }
     }
   };
 
   return (
-    <div className="relative rounded-3xl bg-[#090b14] border border-white/[0.1] shadow-2xl overflow-hidden min-h-[600px] flex flex-col">
+    <div className="relative rounded-3xl bg-[#090b14] border border-white/[0.1] shadow-2xl overflow-hidden min-h-[550px] flex flex-col" role="region" aria-label="Memory Constellation Starfield">
       {/* Top Floating Constellation Bar */}
-      <div className="p-4 sm:p-6 border-b border-white/[0.08] flex flex-wrap items-center justify-between gap-4 z-10 bg-[#090b14]/80 backdrop-blur-md">
+      <div className="p-4 sm:p-6 border-b border-white/[0.08] flex flex-col lg:flex-row lg:items-center justify-between gap-4 z-10 bg-[#090b14]/90 backdrop-blur-md">
         <div>
           <h3 className="text-xl font-bold font-display text-white flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-indigo-400" />
             <span>Memory Constellation</span>
           </h3>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-400 mt-0.5">
             428 moments orbiting across 12 months. Twinkling stars connected by relational gravity.
           </p>
         </div>
 
-        {/* Constellation Filters */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full">
-          <button
-            onClick={() => setFilterType('all')}
-            className={`px-3 py-1 rounded-full text-xs font-mono transition-all ${
-              filterType === 'all' 
-                ? 'bg-white text-black font-bold' 
-                : 'bg-white/[0.04] text-slate-400 hover:text-white border border-white/[0.06]'
-            }`}
-          >
-            All 428 Stars
-          </button>
-          {CATEGORIES.slice(0, 5).map(cat => (
+        {/* Constellation Cluster Selectors */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full scrollbar-none">
+          {CONSTELLATION_CLUSTERS.map(cluster => (
             <button
-              key={cat.id}
-              onClick={() => setFilterType(cat.id)}
-              className={`px-2.5 py-1 rounded-full text-xs font-mono border transition-all ${
-                filterType === cat.id
-                  ? 'border-transparent text-black font-semibold'
-                  : 'border-white/[0.06] bg-white/[0.03] text-slate-400 hover:text-white'
+              key={cluster.id}
+              onClick={() => setSelectedCluster(cluster.id)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-mono whitespace-nowrap transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
+                selectedCluster === cluster.id
+                  ? 'bg-indigo-600 text-white font-semibold shadow'
+                  : 'bg-white/[0.04] text-slate-400 hover:text-white border border-white/[0.06]'
               }`}
-              style={{
-                backgroundColor: filterType === cat.id ? cat.color : undefined,
-                color: filterType === cat.id ? '#000' : undefined
-              }}
             >
-              {cat.label}
+              {cluster.label}
             </button>
           ))}
         </div>
       </div>
 
       {/* Canvas Viewport */}
-      <div className="relative flex-1 flex items-center justify-center p-4">
+      <div className="relative flex-1 flex items-center justify-center p-2 sm:p-4">
         <canvas
           ref={canvasRef}
           width={1000}
-          height={650}
+          height={620}
           onMouseMove={handleMouseMove}
-          onClick={handleClick}
-          className="max-w-full max-h-full cursor-pointer select-none"
+          onClick={handleCanvasClick}
+          onTouchStart={handleTouchStart}
+          className="max-w-full max-h-full cursor-pointer select-none touch-none"
+          role="img"
+          aria-label="Interactive celestial map of memories"
         />
 
         {/* Hover Celestial Tooltip */}
@@ -271,7 +272,7 @@ export default function MemoryConstellation({ onSelectReceipt }) {
               {hoveredReceipt.title}
             </p>
             <p className="text-[10px] font-mono text-indigo-400 mt-0.5">
-              Click to trace constellation connections
+              Click to view connected constellation
             </p>
           </div>
         )}
@@ -279,7 +280,7 @@ export default function MemoryConstellation({ onSelectReceipt }) {
 
       {/* Active Star Drawer / Bottom Banner */}
       {activeReceipt && (
-        <div className="p-4 sm:p-5 border-t border-white/[0.08] bg-[#0c0f1d]/90 backdrop-blur-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 z-10 animate-in slide-in-from-bottom-2">
+        <div className="p-4 sm:p-5 border-t border-white/[0.08] bg-[#0c0f1d]/95 backdrop-blur-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 z-10 animate-in slide-in-from-bottom-2">
           <div className="flex items-center gap-3">
             <div 
               className="w-10 h-10 rounded-2xl flex items-center justify-center border shrink-0"
@@ -306,12 +307,21 @@ export default function MemoryConstellation({ onSelectReceipt }) {
             </div>
           </div>
 
-          <button
-            onClick={() => setActiveReceipt(null)}
-            className="px-3.5 py-1.5 rounded-xl text-xs font-mono bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 transition-colors"
-          >
-            Clear Constellation
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => onSelectReceipt && onSelectReceipt(activeReceipt)}
+              className="px-3.5 py-1.5 rounded-xl text-xs font-mono bg-indigo-600 hover:bg-indigo-500 text-white transition-colors flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              <span>Inspect Receipt</span>
+            </button>
+            <button
+              onClick={() => setActiveReceipt(null)}
+              className="px-3.5 py-1.5 rounded-xl text-xs font-mono bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 transition-colors"
+            >
+              Clear
+            </button>
+          </div>
         </div>
       )}
     </div>

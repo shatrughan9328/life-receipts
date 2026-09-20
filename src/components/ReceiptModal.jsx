@@ -21,6 +21,7 @@ import { CATEGORIES } from '../data/receipts';
 import { getConnectionsForReceipt } from '../utils/connectionEngine';
 import { ALL_RECEIPTS } from '../data/receipts';
 import { Link } from 'react-router-dom';
+import ConnectionChain from './ConnectionChain';
 
 const ICON_MAP = {
   music: Music,
@@ -36,21 +37,25 @@ const ICON_MAP = {
 
 export default function ReceiptModal({ receipt, onClose, onSelectReceipt }) {
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [showChain, setShowChain] = useState(false);
 
   const connectedMoments = useMemo(() => {
     if (!receipt) return [];
     return getConnectionsForReceipt(receipt, ALL_RECEIPTS, 35).slice(0, 5);
   }, [receipt]);
 
-  useEffect(() => {
-    setIsPlayingAudio(false);
+  const relatedChainReceipts = useMemo(() => {
+    if (!receipt) return [];
+    return [receipt, ...connectedMoments.map(c => c.receipt)];
+  }, [receipt, connectedMoments]);
 
+  useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [receipt, onClose]);
+  }, [onClose]);
 
   if (!receipt) return null;
 
@@ -58,9 +63,15 @@ export default function ReceiptModal({ receipt, onClose, onSelectReceipt }) {
   const IconComponent = ICON_MAP[receipt.type] || FileText;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="receipt-modal-title"
+    >
       <div 
-        className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-[#0d101c] border border-white/[0.12] shadow-2xl shadow-indigo-950/50 p-6 sm:p-8"
+        className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-[#0d101c] border border-white/[0.12] shadow-2xl shadow-indigo-950/50 p-5 sm:p-8 focus-visible:outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Accent bar */}
@@ -72,8 +83,8 @@ export default function ReceiptModal({ receipt, onClose, onSelectReceipt }) {
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-full bg-white/[0.05] hover:bg-white/[0.1] text-slate-400 hover:text-white transition-colors"
-          aria-label="Close modal"
+          className="absolute top-5 right-5 p-2 rounded-full bg-white/[0.05] hover:bg-white/[0.1] text-slate-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+          aria-label="Close receipt details modal"
         >
           <X className="w-5 h-5" />
         </button>
@@ -99,7 +110,7 @@ export default function ReceiptModal({ receipt, onClose, onSelectReceipt }) {
         </div>
 
         {/* Main Title */}
-        <h2 className="text-2xl sm:text-3xl font-bold font-display text-white tracking-tight mb-2">
+        <h2 id="receipt-modal-title" className="text-2xl sm:text-3xl font-bold font-display text-white tracking-tight mb-2">
           {receipt.title}
         </h2>
 
@@ -119,7 +130,8 @@ export default function ReceiptModal({ receipt, onClose, onSelectReceipt }) {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setIsPlayingAudio(!isPlayingAudio)}
-                  className="w-12 h-12 rounded-full bg-emerald-500 text-black flex items-center justify-center hover:scale-105 transition-transform shadow-lg shadow-emerald-500/20"
+                  aria-label={isPlayingAudio ? 'Pause simulated track' : 'Play simulated track'}
+                  className="w-12 h-12 rounded-full bg-emerald-500 text-black flex items-center justify-center hover:scale-105 transition-transform shadow-lg shadow-emerald-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
                 >
                   {isPlayingAudio ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
                 </button>
@@ -134,7 +146,7 @@ export default function ReceiptModal({ receipt, onClose, onSelectReceipt }) {
             </div>
 
             {/* Simulated Animated Waveform */}
-            <div className="h-8 flex items-end gap-1 px-2">
+            <div className="h-8 flex items-end gap-1 px-2" aria-hidden="true">
               {[40, 65, 80, 45, 90, 70, 30, 85, 95, 60, 40, 75, 50, 90, 65, 45, 80, 100, 60, 40, 70, 85, 50].map((height, i) => (
                 <div 
                   key={i} 
@@ -179,7 +191,7 @@ export default function ReceiptModal({ receipt, onClose, onSelectReceipt }) {
         {/* 3. PHOTO PREVIEW */}
         {receipt.type === 'photo' && (
           <div className="mb-6 p-4 rounded-2xl bg-blue-950/20 border border-blue-500/20">
-            <div className="h-48 rounded-xl bg-gradient-to-tr from-slate-900 via-blue-950/50 to-indigo-950 flex flex-col items-center justify-center p-6 text-center border border-white/[0.05] relative overflow-hidden">
+            <div className="h-44 rounded-xl bg-gradient-to-tr from-slate-900 via-blue-950/50 to-indigo-950 flex flex-col items-center justify-center p-6 text-center border border-white/[0.05] relative overflow-hidden">
               <Camera className="w-10 h-10 text-blue-400/50 mb-2" />
               <p className="text-xs font-mono text-blue-300 max-w-md italic">"{receipt.metadata?.caption || receipt.title}"</p>
               
@@ -260,51 +272,77 @@ export default function ReceiptModal({ receipt, onClose, onSelectReceipt }) {
               <Link2 className="w-4 h-4 text-indigo-400" />
               <span>Connected Moments ({connectedMoments.length})</span>
             </h4>
-            <Link
-              to={`/connections?focus=${receipt.id}`}
-              className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1 font-medium hover:underline"
-            >
-              <span>View in Graph</span>
-              <ExternalLink className="w-3 h-3" />
-            </Link>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowChain(!showChain)}
+                className="text-xs text-slate-400 hover:text-indigo-300 font-mono underline cursor-pointer"
+              >
+                {showChain ? 'Hide Chain' : 'View Life Chain'}
+              </button>
+              <Link
+                to={`/connections?focus=${receipt.id}`}
+                className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1 font-medium hover:underline"
+              >
+                <span>View in Graph</span>
+                <ExternalLink className="w-3 h-3" />
+              </Link>
+            </div>
           </div>
 
-          {connectedMoments.length > 0 ? (
-            <div className="space-y-2">
-              {connectedMoments.map(({ receipt: connReceipt, score, reasons }) => (
-                <div
-                  key={connReceipt.id}
-                  onClick={() => onSelectReceipt(connReceipt)}
-                  className="p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.05] hover:border-indigo-500/30 transition-all cursor-pointer flex items-center justify-between gap-3 group"
-                >
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-xs font-semibold text-white group-hover:text-indigo-300 truncate">
-                        {connReceipt.title}
-                      </span>
-                      <span className="text-[10px] font-mono text-slate-400">
-                        {connReceipt.timestamp}
-                      </span>
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {reasons.slice(0, 2).map((r, ri) => (
-                        <span key={ri} className="text-[10px] text-slate-400 bg-white/[0.04] px-1.5 py-0.2 rounded">
-                          {r.label}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="shrink-0 text-right">
-                    <span className="text-xs font-mono font-bold text-indigo-400">
-                      {score} pts
-                    </span>
-                  </div>
-                </div>
-              ))}
+          {showChain ? (
+            <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] mb-4">
+              <ConnectionChain 
+                receipts={relatedChainReceipts} 
+                onSelectReceipt={(r) => onSelectReceipt && onSelectReceipt(r)} 
+              />
             </div>
           ) : (
-            <p className="text-xs text-slate-500 italic">No strongly connected moments found above threshold.</p>
+            connectedMoments.length > 0 ? (
+              <div className="space-y-2">
+                {connectedMoments.map(({ receipt: connReceipt, score, reasons }) => (
+                  <div
+                    key={connReceipt.id}
+                    onClick={() => onSelectReceipt && onSelectReceipt(connReceipt)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        if (onSelectReceipt) onSelectReceipt(connReceipt);
+                      }
+                    }}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`View connected moment: ${connReceipt.title}`}
+                    className="p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.05] hover:border-indigo-500/30 transition-all cursor-pointer flex items-center justify-between gap-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+                  >
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="text-xs font-semibold text-white group-hover:text-indigo-300 truncate">
+                          {connReceipt.title}
+                        </span>
+                        <span className="text-[10px] font-mono text-slate-400">
+                          {connReceipt.timestamp}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {reasons.slice(0, 2).map((r, ri) => (
+                          <span key={ri} className="text-[10px] text-slate-400 bg-white/[0.04] px-1.5 py-0.2 rounded">
+                            {r.label}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="shrink-0 text-right">
+                      <span className="text-xs font-mono font-bold text-indigo-400">
+                        {score} pts
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-slate-500 italic">No strongly connected moments found above threshold.</p>
+            )
           )}
         </div>
 

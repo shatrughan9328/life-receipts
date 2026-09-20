@@ -30,10 +30,21 @@ export default function ReceiptCard({ receipt, onClick, connectionCount = 0, isH
   const categoryConfig = CATEGORIES.find(c => c.id === receipt.type) || CATEGORIES[0];
   const IconComponent = ICON_MAP[receipt.type] || FileText;
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (onClick) onClick(receipt);
+    }
+  };
+
   return (
-    <div
+    <article
       onClick={() => onClick && onClick(receipt)}
-      className={`group relative flex flex-col justify-between p-5 rounded-2xl bg-[#0f1322]/80 backdrop-blur-md border transition-all duration-300 cursor-pointer overflow-hidden ${
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      role="button"
+      aria-label={`${receipt.type} receipt: ${receipt.title}, recorded at ${receipt.timestamp} on ${receipt.date}`}
+      className={`group relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-[#0f1322]/80 backdrop-blur-md border transition-all duration-300 cursor-pointer overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#07090e] ${
         isHighlighted 
           ? 'border-indigo-500 shadow-lg shadow-indigo-500/25 ring-1 ring-indigo-500' 
           : 'border-white/[0.08] hover:border-white/20 hover:shadow-xl hover:shadow-black/40 hover:-translate-y-1'
@@ -86,7 +97,7 @@ export default function ReceiptCard({ receipt, onClick, connectionCount = 0, isH
         )}
 
         {/* Bottom divider with receipt slip styling */}
-        <div className="pt-3 border-t border-dashed border-white/[0.08] flex items-center justify-between text-[11px] text-slate-500 font-mono">
+        <div className="pt-3 border-t border-dashed border-white/[0.08] flex items-center justify-between text-[11px] text-slate-400 font-mono">
           <span>{receipt.date}</span>
 
           {connectionCount > 0 ? (
@@ -95,10 +106,10 @@ export default function ReceiptCard({ receipt, onClick, connectionCount = 0, isH
               <span>{connectionCount} linked</span>
             </span>
           ) : (
-            <span className="text-slate-600">#{receipt.id.split('-').slice(-1)[0]}</span>
+            <span className="text-slate-500">#{receipt.id.split('-').slice(-1)[0]}</span>
           )}
         </div>
       </div>
-    </div>
+    </article>
   );
 }

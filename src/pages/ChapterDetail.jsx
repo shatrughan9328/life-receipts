@@ -1,22 +1,16 @@
 import React, { useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { getChapterById } from '../utils/chapterGenerator';
 import ReceiptCard from '../components/ReceiptCard';
 import ReceiptModal from '../components/ReceiptModal';
 import { 
   ArrowLeft, 
-  Sparkles, 
-  Calendar, 
-  MapPin, 
   Network, 
-  Play, 
-  Quote,
-  Clock
+  Play
 } from 'lucide-react';
 
 export default function ChapterDetail() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const chapter = getChapterById(id);
   const [activeReceiptModal, setActiveReceiptModal] = useState(null);
 

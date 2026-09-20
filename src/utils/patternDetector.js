@@ -56,7 +56,8 @@ export function detectPatterns(receipts = ALL_RECEIPTS) {
       evidence: `${lateNightMusic.length} late-night listening sessions detected`,
       color: 'from-purple-500/20 to-indigo-500/20',
       borderColor: 'border-purple-500/40',
-      textColor: 'text-purple-400'
+      textColor: 'text-purple-400',
+      explorerQuery: '/explorer?search=late+night'
     },
     {
       id: 'third-place',
@@ -68,7 +69,8 @@ export function detectPatterns(receipts = ALL_RECEIPTS) {
       evidence: `${cafeVisits.length} recorded café visits, averaging 1.8 hours per session`,
       color: 'from-amber-500/20 to-yellow-500/20',
       borderColor: 'border-amber-500/40',
-      textColor: 'text-amber-400'
+      textColor: 'text-amber-400',
+      explorerQuery: '/explorer?search=coffee'
     },
     {
       id: 'soundtrack-effect',
@@ -80,19 +82,21 @@ export function detectPatterns(receipts = ALL_RECEIPTS) {
       evidence: `${notesAfterMusic} journal entries penned within 90 minutes of track playback`,
       color: 'from-emerald-500/20 to-teal-500/20',
       borderColor: 'border-emerald-500/40',
-      textColor: 'text-emerald-400'
+      textColor: 'text-emerald-400',
+      explorerQuery: '/explorer?category=note'
     },
     {
       id: 'explorer-mode',
       badge: '📍 EXPLORER MODE',
       title: 'The Novelty Spike',
-      stat: '3.8x',
+      stat: `${explorerRatio}x`,
       substat: 'higher photo density when stepping outside daily zones',
       description: 'Your camera remained quiet during standard routines, but ignited instantly whenever coordinates changed. Physical movement directly triggered visual curiosity.',
-      evidence: '42 photos captured across mountain highways and new postal codes',
+      evidence: `${photosAtNewPlaces.length} photos captured across mountain highways and new postal codes`,
       color: 'from-blue-500/20 to-cyan-500/20',
       borderColor: 'border-blue-500/40',
-      textColor: 'text-blue-400'
+      textColor: 'text-blue-400',
+      explorerQuery: '/explorer?category=photo'
     },
     {
       id: 'comfort-loop',
@@ -101,15 +105,16 @@ export function detectPatterns(receipts = ALL_RECEIPTS) {
       stat: `${movies.length} Films`,
       substat: 'repeatedly enjoyed during low-energy periods',
       description: 'Rather than seeking new stimulation during depleted moments, you retreated into familiar cinema (Miyazaki, Christopher Nolan) paired with warm food delivery.',
-      evidence: 'Multiple rewatches of Spirited Away and Interstellar during December',
+      evidence: `${movies.length} comfort movies & ${cozyPurchases.length} comfort meals logged during quiet weeks`,
       color: 'from-rose-500/20 to-pink-500/20',
       borderColor: 'border-rose-500/40',
-      textColor: 'text-rose-400'
+      textColor: 'text-rose-400',
+      explorerQuery: '/explorer?category=movie'
     }
   ];
 }
 
-export function getDigitalPersonality(receipts = ALL_RECEIPTS) {
+export function getDigitalPersonality(_receipts = ALL_RECEIPTS) {
   return {
     archetype: 'The Contemplative Builder',
     tagline: 'Deep nocturnal focus paired with an intentional search for sanctuary.',

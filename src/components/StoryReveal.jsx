@@ -7,13 +7,6 @@ import {
   Share2, 
   Check, 
   Quote, 
-  Clock, 
-  MapPin, 
-  Music, 
-  Search, 
-  CreditCard, 
-  Camera, 
-  FileText,
   Bookmark
 } from 'lucide-react';
 import { generateStoryFromReceipts } from '../utils/storyGenerator';
@@ -72,7 +65,12 @@ export default function StoryReveal({ receipts, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-xl animate-in fade-in duration-300">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-xl animate-in fade-in duration-300"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="story-title"
+    >
       <div 
         className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto rounded-3xl bg-[#0b0e1a] border border-indigo-500/30 shadow-2xl shadow-indigo-950/70 p-6 sm:p-10"
         onClick={(e) => e.stopPropagation()}
@@ -123,7 +121,7 @@ export default function StoryReveal({ receipts, onClose }) {
 
         {/* Story Title & Subtitle */}
         <div className="mb-8">
-          <h2 className="text-3xl sm:text-4xl font-bold font-display text-white tracking-tight mb-2">
+          <h2 id="story-title" className="text-3xl sm:text-4xl font-bold font-display text-white tracking-tight mb-2">
             {story.title}
           </h2>
           <p className="text-base sm:text-lg text-indigo-200/90 font-light">

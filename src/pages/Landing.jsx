@@ -3,15 +3,7 @@ import { Link } from 'react-router-dom';
 import { 
   Sparkles, 
   ArrowRight, 
-  Layers, 
-  Network, 
-  BookOpen, 
-  Lightbulb, 
-  Compass,
-  Play,
-  CheckCircle2,
-  Cpu,
-  ChevronRight
+  Play
 } from 'lucide-react';
 import FloatingReceipts from '../components/FloatingReceipts';
 import { CATEGORIES } from '../data/receipts';

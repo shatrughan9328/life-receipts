@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ALL_RECEIPTS } from '../data/receipts';
 import ReceiptCard from '../components/ReceiptCard';
 import ReceiptModal from '../components/ReceiptModal';
@@ -7,11 +8,22 @@ import { getConnectionsForReceipt } from '../utils/connectionEngine';
 import { Inbox } from 'lucide-react';
 
 export default function Explorer() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [searchParams] = useSearchParams();
+  const searchParamVal = searchParams.get('search') || '';
+  const categoryParamVal = searchParams.get('category') || 'all';
+
+  const [prevParams, setPrevParams] = useState({ search: searchParamVal, category: categoryParamVal });
+  const [searchQuery, setSearchQuery] = useState(searchParamVal);
+  const [selectedCategory, setSelectedCategory] = useState(categoryParamVal);
   const [selectedMonth, setSelectedMonth] = useState('all');
   const [sortBy, setSortBy] = useState('date-desc');
   const [activeReceiptModal, setActiveReceiptModal] = useState(null);
+
+  if (prevParams.search !== searchParamVal || prevParams.category !== categoryParamVal) {
+    setPrevParams({ search: searchParamVal, category: categoryParamVal });
+    setSearchQuery(searchParamVal);
+    setSelectedCategory(categoryParamVal);
+  }
 
   // Precompute category counts for FilterBar badges
   const categoryCounts = useMemo(() => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ALL_RECEIPTS, getDemoClusterReceipts } from '../data/receipts';
 import ConnectionGraph from '../components/ConnectionGraph';
@@ -26,19 +26,20 @@ export default function Connections() {
 
   const [selectedReceipt, setSelectedReceipt] = useState(initialReceipt);
 
-  useEffect(() => {
+  const [prevFocus, setPrevFocus] = useState(focusParam);
+  if (prevFocus !== focusParam) {
+    setPrevFocus(focusParam);
     if (focusParam) {
       const found = ALL_RECEIPTS.find(r => r.id === focusParam);
       if (found) {
         setSelectedReceipt(found);
-        // If it belongs to a chapter, switch to that chapter
         const parentChapter = chapters.find(c => c.receipts.some(r => r.id === found.id));
         if (parentChapter) {
           setSelectedClusterId(parentChapter.id);
         }
       }
     }
-  }, [focusParam, chapters]);
+  }
 
   const handleClusterSelect = (chapter) => {
     setSelectedClusterId(chapter.id);
