@@ -1,0 +1,106 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #07090e;
+    color: #f1f5f9;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Glassmorphism utilities */
+.glass-panel {
+  background: rgba(16, 20, 31, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: rgba(22, 26, 41, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  background: rgba(28, 34, 54, 0.8);
+  border-color: rgba(255, 255, 255, 0.16);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5), 0 0 20px -5px rgba(99, 102, 241, 0.15);
+}
+
+/* Glow effects */
+.glow-accent {
+  box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.3);
+}
+
+.glow-music {
+  box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.35);
+}
+
+.glow-movie {
+  box-shadow: 0 0 25px -5px rgba(244, 63, 94, 0.35);
+}
+
+.glow-place {
+  box-shadow: 0 0 25px -5px rgba(245, 158, 11, 0.35);
+}
+
+/* Receipt paper slip perforated border styling */
+.receipt-perforated {
+  position: relative;
+  background: #0f131f;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.receipt-perforated::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background-image: radial-gradient(circle, transparent, transparent 50%, #0f131f 50%, #0f131f 100%);
+  background-size: 12px 12px;
+}
+
+/* Custom modern scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #07090e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1f263d;
+  border-radius: 9999px;
+  border: 2px solid #07090e;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #333d61;
+}
+
+/* Ambient starfield background pattern */
+.bg-grid-pattern {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+
+.bg-radial-vignette {
+  background: radial-gradient(circle at 50% 20%, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.05) 40%, transparent 80%);
+}
